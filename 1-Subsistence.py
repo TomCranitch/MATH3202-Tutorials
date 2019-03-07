@@ -1,5 +1,6 @@
 from gurobipy import *
 
+## GIVEN STUB ##
 Food = ['Broccoli', 'Multigrain Bread', 'Carrots', 'Potato', 'Milk', 'Beef Mince',
         'Banana', 'Pasta', 'Pasta Sauce', 'Scotch Fillet', 'Chicken Breast',
         'White Rice', 'Peas', 'Cucumber', 'Cauliflower', 'Peach', 'Apple',
@@ -41,6 +42,7 @@ DMAX = [GRB.INFINITY, GRB.INFINITY, 50, 1, 1000, 2500, GRB.INFINITY, 45, 2300, 1
 # F and N1 are established for iterations in later code
 F = range(len(Food))
 N = range(len(Nutrients))
+ # END STUB ##
 
 m = Model("Const of Subsistence")
 
@@ -49,10 +51,12 @@ X = {}
 for f in F:
     X[f] = m.addVar()
 
+# Add constraints
 for n in N:
     m.addConstr(quicksum(NV[f][n] * X[f] for f in F) >= DMIN[n])
     m.addConstr(quicksum(NV[f][n] * X[f] for f in F) <= DMAX[n])
 
+# Optimise and Print Solutions
 m.setObjective(quicksum(C[f] * X[f] for f in F))
 m.optimize()
 
