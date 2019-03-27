@@ -52,11 +52,15 @@ X = [[mod.addVar(vtype=GRB.INTEGER) for t in T] for p in P]
 Y = [[mod.addVar(vtype=GRB.INTEGER, ub=market[p][t]) for t in T] for p in P]
 S = [[mod.addVar(vtype=GRB.INTEGER, ub=MAX_STORE) for t in T] for p in P]
 
-mod.addConstrs((quicksum(usage[p][m] * X[p][t] for p in P) <= MONTH_HOURS*(n[m] - maint[t][m]) for m in M for t in T))
+Z = [[mod.addVar(vtype=GRB.INTEGER) for m in M] for t in T]
+
+mod.addConstrs((quicksum(usage[p][m] * X[p][t] for p in P) <= MONTH_HOURS*(n[m] - Z[t][m]) for m in M for t in T))
 mod.addConstrs(S[p][t] == S[p][t-1] + X[p][t] - Y[p][t] for p in P for t in T if t > 1)
 mod.addConstrs(S[p][t] <= MAX_STORE for p in P for t in T)
 mod.addConstrs(S[p][-1] >= FINAL_STORE for p in P)
 mod.addConstrs(S[p][0] == X[p][0] - Y[p][0] for p in P)
+
+mod.addConstrs(quicksum(Z[t][m] for t in T) == sum(maint[t][m] for t in T) for m in M)
 
 mod.setObjective(quicksum(profit[p]*Y[p][t] for p in P for t in T) - quicksum(STORE_COST*S[p][t] for p in P for t in T), GRB.MAXIMIZE)
 mod.optimize()
@@ -73,3 +77,7 @@ for p in P:
 print("\n\n Storage \n")
 for p in P:
     print([S[p][t].x for t in T])
+
+print("\n\n Maintainence \n")
+for m in M:
+    print([Z[t][m].x for t in T])
