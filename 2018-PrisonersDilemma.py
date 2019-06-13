@@ -11,7 +11,6 @@ def sol(C, P):
 
     return max(
         ((P * 3) + sol(C - 1, min(P + 0.1, 1))[0], 1),
-
         ((P * 5) + (1 - P) + sol(C - 1, max(P - 0.2, 0))[0], 0)
     )
 
