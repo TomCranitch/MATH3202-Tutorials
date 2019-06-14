@@ -31,18 +31,24 @@ m = Model("BigCorp Factory Assignment")
 
 X = [m.addVar(vtype=GRB.BINARY) for f in Factories]
 Y = [[m.addVar(vtype=GRB.BINARY) for f in Factories] for c in Customers]
+Z = [m.addVar(vtype=GRB.BINARY) for f in Factories]
 
+m.addConstrs(Y[c][f] <= X[f] + Z[f] for f in Factories for c in Customers)
 m.addConstrs(quicksum(Y[c][f] for f in Factories) == 1 for c in Customers)
-m.addConstrs(Y[c][f] <= X[f] for f in Factories for c in Customers)
-m.addConstrs(quicksum(Y[c][f] for c in Customers) <= 6 for f in Factories)
+m.addConstrs(quicksum(Y[c][f] for c in Customers) <= 6*(1-Z[f]) + 8*Z[f] for f in Factories)
+m.addConstrs(Z[f] + X[f] <= 1 for f in Factories)
 
-m.setObjective(quicksum(Build[f] * X[f] for f in Factories) + quicksum(Assign[c][f] * Y[c][f] for c in Customers for f in Factories), GRB.MINIMIZE)
+m.setObjective(quicksum(1.5 * Build[f] * Z[f] for f in Factories) + quicksum(Build[f] * X[f] for f in Factories) + quicksum(Assign[c][f] * Y[c][f] for c in Customers for f in Factories), GRB.MINIMIZE)
 m.optimize()
 
 
-print("\n\n\033[1m Report Prepared for 2019 MATH3202 Practical Exam. Minimum combined assignment and build cost is $" + str(m.objVal) + ".\033[0m\n\n")
+print("\n\n\033[1m Report Prepared for 2019 MATH3202 Practical Exam Question 1(b). Minimum combined assignment and build cost is $" + str(m.objVal) + "\033[0m.\n\n")
 
 for f in Factories:
     if X[f].x > 0:
-        print("Factory", f, "is built. It assigned the following customers:")
+        print("Factory", f, "is built at the smaller size. It is assigned the following customers:")
+        print(', '.join(map(str, [c for c in Customers if Y[c][f].x > 0])))
+
+    if Z[f].x > 0:
+        print("Factory", f, "is built at the larger size. It is assigned the following customers:")
         print(', '.join(map(str, [c for c in Customers if Y[c][f].x > 0])))
