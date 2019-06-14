@@ -40,7 +40,7 @@ m.setObjective(quicksum(Build[f] * X[f] for f in Factories) + quicksum(Assign[c]
 m.optimize()
 
 
-print("\n\n\033[1m Report Prepared for 2019 MATH3202 Practical Exam Question 1(a). Minimum combined assignment and build cost is $" + str(m.objVal) + "\033[0m.\n\n")
+print("\n\n\033[1m Solution Prepared for 2019 MATH3202 Practical Exam Question 1(a). Minimum combined assignment and build cost is $" + str(m.objVal) + "\033[0m.\n\n")
 
 for f in Factories:
     if X[f].x > 0:
