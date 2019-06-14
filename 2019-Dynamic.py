@@ -38,7 +38,7 @@ print("The optimal solution is given by making the following purchases", ', '.jo
 @lru_cache(maxsize=None)
 def V2(t, b, m):
     if t == 7:
-        return b, (b,)
+        return b, ('End',)
 
     if m == 1:
         return max(
